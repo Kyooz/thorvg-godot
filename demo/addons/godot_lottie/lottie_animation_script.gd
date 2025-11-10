@@ -2,16 +2,11 @@
 extends Node2D
 class_name LottieAnimationWrapper
 
-# This is a wrapper script that will be replaced by the actual C++ implementation
-# when the GDExtension is loaded. This allows the plugin to register the node type
-# even if the native library is not yet compiled.
-
 @export_file("*.json", "*.lottie") var animation_path: String = ""
 @export var playing: bool = false
 @export var autoplay: bool = false
 @export var looping: bool = true
 @export_range(0.0, 10.0, 0.01) var speed: float = 1.0
-## Internal render size is managed by the native extension; keep the wrapper minimal.
 
 var current_frame: float = 0.0
 var total_frames: float = 0.0

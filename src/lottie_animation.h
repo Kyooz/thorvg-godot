@@ -74,7 +74,7 @@ private:
     bool frame_cache_enabled = false;
     int frame_cache_budget_mb = 256; // total shared budget
     int frame_cache_step = 1; // quantize frames to this step (frames)
-    int engine_option = 0; // 0: Default, 1: SmartRender
+    int engine_option = 1; // 0: Default, 1: SmartRender (HIGH PERFORMANCE DEFAULT)
     // Only use frame cache when not actively playing (avoid stalls during playback)
     // Janitor-style: rely on incremental updates rather than frame texture caching while animating.
     bool cache_only_when_paused = true;

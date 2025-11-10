@@ -12,25 +12,20 @@ const ZOOM_MAX := 5.0
 
 # Inspector-configurable options
 @export var initial_spawn: int = 0
-@export var spawn_batch_count: int = 4
+@export var spawn_batch_count: int = 50
 @export var spawn_random_in_view: bool = true
 
 func _ready() -> void:
 	lotties.append(lottie_template)
 	if is_instance_valid(count_label):
-		# Make the label ignore mouse to avoid GUI picking cost
 		count_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
-	# Prefer polling via actions to avoid per-event script calls on mouse move.
-	# Also enable accumulated input to collapse many motion/wheel events per frame.
 	Input.set_use_accumulated_input(true)
 	_init_actions()
-	# Spawn a starting batch for quick stress tests
 	_spawn_random_batch(initial_spawn)
 	_update_label()
 
 func _process(_delta: float) -> void:
-	# Poll actions instead of reacting to every raw mouse event.
 	if Input.is_action_just_pressed("spawn_lottie"):
 		_spawn_lottie_at(get_global_mouse_position())
 	if Input.is_action_just_pressed("spawn_batch"):
@@ -47,7 +42,6 @@ func _set_zoom(value: float) -> void:
 func _spawn_lottie_at(world_pos: Vector2) -> void:
 	var node := LottieAnimation.new()
 	node.animation_path = lottie_template.animation_path
-	# Respect template autoplay/looping instead of forcing playback.
 	node.autoplay = lottie_template.autoplay
 	node.looping = lottie_template.looping
 	node.playing = lottie_template.playing
@@ -76,7 +70,6 @@ func _update_label() -> void:
 		count_label.text = "Lotties: %d" % lotties.size()
 
 func _init_actions() -> void:
-	# Define actions at runtime if they don't exist (wheel + right click)
 	if not InputMap.has_action("spawn_lottie"):
 		InputMap.add_action("spawn_lottie")
 		var ev_rmb := InputEventMouseButton.new()
@@ -99,8 +92,6 @@ func _init_actions() -> void:
 		InputMap.action_add_event("zoom_out", ev_wd)
 
 func _current_world_rect() -> Rect2:
-	# Approximate the visible world rect using camera zoom and viewport size.
-	# world_half_extents ≈ (screen_size * 0.5) * zoom
 	var vp_size := get_viewport_rect().size
 	var half := vp_size * 0.5 * camera_2d.zoom
 	var center := camera_2d.get_screen_center_position()

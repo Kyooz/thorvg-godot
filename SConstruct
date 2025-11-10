@@ -1,35 +1,66 @@
 #!/usr/bin/env python
+
+"""
+ThorVG-Godot Build Configuration
+Builds optimized Lottie animation extension for Godot Engine
+"""
+
 import os
 import sys
 
 env = SConscript("godot-cpp/SConstruct")
 
-# Tweak this if you want to use different folders, or more folders, to store your source code in.
+# Source files
 env.Append(CPPPATH=["src/"])
 sources = Glob("src/*.cpp")
 
-# ThorVG integration
+# ThorVG integration - Platform-specific library handling
 env.Append(CPPPATH=["thirdparty/thorvg/inc"])
-env.Append(CPPDEFINES=["TVG_STATIC"])  # Link against static ThorVG without dllimport
 
-# Add ThorVG library path and library (handle .lib or .a)
-# Use platform-specific ThorVG build output directory
+# Determine ThorVG library location and linking method
 if env["platform"] == "web":
     thorvg_lib_dir = os.path.join("thirdparty", "thorvg", "build_wasm", "src")
 else:
     thorvg_lib_dir = os.path.join("thirdparty", "thorvg", "builddir", "src")
+
 if os.path.exists(thorvg_lib_dir):
     env.Append(LIBPATH=[thorvg_lib_dir])
-    thorvg_lib_file_lib = os.path.join(thorvg_lib_dir, "thorvg.lib")
-    thorvg_lib_file_a = os.path.join(thorvg_lib_dir, "libthorvg.a")
-    if os.path.isfile(thorvg_lib_file_lib):
-        # Typical MSVC static library
-        env.Append(LIBS=["thorvg"])
-    elif os.path.isfile(thorvg_lib_file_a):
-        # Meson may output a COFF static lib with .a extension; pass full path to linker
-        env.Append(LINKFLAGS=[thorvg_lib_file_a])
-    else:
+    
+    # Platform-specific library files
+    platform_libs = {
+        "windows": [
+            ("thorvg.lib", lambda: env.Append(LIBS=["thorvg"])),
+            ("libthorvg.a", lambda: env.Append(LINKFLAGS=[os.path.join(thorvg_lib_dir, "libthorvg.a")]))
+        ],
+        "linux": [
+            ("libthorvg.so", lambda: env.Append(LIBS=["thorvg"])),
+            ("libthorvg.a", lambda: env.Append(LIBS=["thorvg"]))
+        ],
+        "macos": [
+            ("libthorvg.dylib", lambda: env.Append(LIBS=["thorvg"])),
+            ("libthorvg.a", lambda: env.Append(LIBS=["thorvg"]))
+        ]
+    }
+    
+    # Try to find and link appropriate library for current platform
+    lib_found = False
+    if env["platform"] in platform_libs:
+        for lib_name, link_func in platform_libs[env["platform"]]:
+            lib_path = os.path.join(thorvg_lib_dir, lib_name)
+            if os.path.isfile(lib_path):
+                link_func()
+                lib_found = True
+                print("Using ThorVG library: {}".format(lib_name))
+                break
+    
+    if not lib_found:
         print("Warning: ThorVG library not found in {}".format(thorvg_lib_dir))
+        print("Available files:", os.listdir(thorvg_lib_dir) if os.path.exists(thorvg_lib_dir) else "Directory not found")
+else:
+    print("Error: ThorVG build directory not found: {}".format(thorvg_lib_dir))
+    print("Please run the appropriate build script first:")
+    print("  Windows: build_thorvg.bat") 
+    print("  Linux/macOS: ./build_thorvg.sh")
 
 # Output library name
 if env["platform"] == "macos":

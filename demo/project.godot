@@ -10,10 +10,10 @@ config_version=5
 
 [application]
 
-config/name="Godot Lottie Demo"
+config/name="Thorvg Godot"
 config/description="Demo project for Godot Lottie ThorVG integration"
 config/version="1.0.0"
-run/main_scene="uid://cii52m5pmadwv"
+run/main_scene="uid://dcryhgllao55i"
 config/features=PackedStringArray("4.6", "Forward Plus")
 
 [autoload]

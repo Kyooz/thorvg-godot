@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=3 uid="uid://dcryhgllao55i"]
+[gd_scene load_steps=4 format=3 uid="uid://dcryhgllao55i"]
 
 [ext_resource type="Script" uid="uid://ba2b8edbsx2u6" path="res://addons/godot_lottie/scripts/stress_demo.gd" id="1_2pdvg"]
+[ext_resource type="Texture2D" uid="uid://c8nqc5whnxle" path="res://addons/godot_lottie/icons/Thorvg-logo.svg" id="2_imp56"]
 
 [sub_resource type="FontVariation" id="FontVariation_2pdvg"]
 
@@ -12,13 +13,18 @@ anchor_mode = 0
 process_callback = 0
 
 [node name="LottieAnimation" type="LottieAnimation" parent="." unique_id=1646907431]
-animation_path = "res://addons/godot_lottie/lotties/laughing cat.lottie"
+animation_path = "res://addons/godot_lottie/lotties/Godot funny.json"
 playing = true
-state/animation = "animation"
-state/machine = ""
-state/state = ""
+fit_box_size = Vector2i(212, 212)
 process_mode = 3
 position = Vector2(604, 296)
+
+[node name="LottieAnimation2" type="LottieAnimation" parent="." unique_id=1360352008]
+animation_path = "res://addons/godot_lottie/lotties/Godot funny.json"
+playing = true
+fit_box_size = Vector2i(212, 212)
+process_mode = 3
+position = Vector2(119, 561)
 
 [node name="Count" type="Label" parent="." unique_id=190845112]
 z_index = 4
@@ -31,8 +37,30 @@ theme_override_fonts/font = SubResource("FontVariation_2pdvg")
 theme_override_font_sizes/font_size = 25
 text = "Lotties count: 1"
 
-[node name="ReferenceRect" type="ReferenceRect" parent="." unique_id=1172697301]
-visible = false
-offset_right = 1273.0
-offset_bottom = 697.0
-editor_only = false
+[node name="LottieAnimation3" type="LottieAnimation" parent="." unique_id=701585030]
+animation_path = "res://addons/godot_lottie/lotties/Godot funny.json"
+playing = true
+fit_box_size = Vector2i(212, 212)
+process_mode = 3
+position = Vector2(1154, 561)
+
+[node name="LottieAnimation4" type="LottieAnimation" parent="." unique_id=1451775948]
+animation_path = "res://addons/godot_lottie/lotties/Untitled file.lottie"
+playing = true
+fit_box_size = Vector2i(215, 215)
+state/animation = "Main Scene"
+state/machine = ""
+state/state = ""
+process_mode = 3
+position = Vector2(535, 594)
+
+[node name="ThorvgLogo" type="Sprite2D" parent="." unique_id=331914551]
+position = Vector2(732, 595)
+texture = ExtResource("2_imp56")
+
+[node name="Label" type="Label" parent="." unique_id=378314878]
+offset_left = 1062.0
+offset_top = 90.0
+offset_right = 1227.0
+offset_bottom = 113.0
+text = "tip: press F3 to check fps."

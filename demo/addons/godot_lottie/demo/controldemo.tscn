@@ -1,0 +1,30 @@
+[gd_scene load_steps=2 format=3 uid="uid://cdf8kp1mnoyng"]
+
+[ext_resource type="Script" uid="uid://ddyd1usxwndmw" path="res://addons/godot_lottie/scripts/controldemo.gd" id="1_6e2k8"]
+
+[node name="controldemo" type="Node2D" unique_id=871582884]
+script = ExtResource("1_6e2k8")
+
+[node name="LottieAnimation" type="LottieAnimation" parent="." unique_id=755252312]
+animation_path = "res://addons/godot_lottie/lotties/Godot funny.json"
+playing = true
+fit_box_size = Vector2i(350, 350)
+process_mode = 3
+position = Vector2(624, 311)
+
+[node name="play" type="Button" parent="." unique_id=1148356404]
+offset_left = 428.0
+offset_top = 497.0
+offset_right = 522.0
+offset_bottom = 528.0
+text = "PLAY ANIM"
+
+[node name="stop" type="Button" parent="." unique_id=862291027]
+offset_left = 708.0
+offset_top = 498.0
+offset_right = 802.0
+offset_bottom = 529.0
+text = "STOP ANIM"
+
+[connection signal="pressed" from="play" to="." method="_on_play_pressed"]
+[connection signal="pressed" from="stop" to="." method="_on_stop_pressed"]

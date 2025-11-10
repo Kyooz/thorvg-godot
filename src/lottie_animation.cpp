@@ -697,20 +697,14 @@ void LottieAnimation::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(Variant::VECTOR2I, "fit_box_size"), "set_fit_box_size", "get_fit_box_size");
     ADD_PROPERTY(PropertyInfo(Variant::BOOL, "dynamic_resolution"), "set_dynamic_resolution", "is_dynamic_resolution");
     ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "resolution_threshold", PROPERTY_HINT_RANGE, "0.01,1.0,0.01"), "set_resolution_threshold", "get_resolution_threshold");
-    // Hide low-level/max options from the inspector for a simpler UX
     ADD_PROPERTY(PropertyInfo(Variant::VECTOR2I, "max_render_size", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_NO_EDITOR), "set_max_render_size", "get_max_render_size");
     ADD_PROPERTY(PropertyInfo(Variant::BOOL, "frame_cache/enabled", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_NO_EDITOR), "set_frame_cache_enabled", "is_frame_cache_enabled");
     ADD_PROPERTY(PropertyInfo(Variant::INT, "frame_cache/budget_mb", PROPERTY_HINT_RANGE, "16,4096,16", PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_NO_EDITOR), "set_frame_cache_budget_mb", "get_frame_cache_budget_mb");
     ADD_PROPERTY(PropertyInfo(Variant::INT, "frame_cache/step_frames", PROPERTY_HINT_RANGE, "1,8,1", PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_NO_EDITOR), "set_frame_cache_step", "get_frame_cache_step");
-    // Engine option is available via API but hidden from the inspector
     ADD_PROPERTY(PropertyInfo(Variant::INT, "engine_option", PROPERTY_HINT_ENUM, "Default,SmartRender", PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_NO_EDITOR), "set_engine_option", "get_engine_option");
-    // Culling controls removed from inspector (kept API methods as no-ops to avoid breaking scripts)
-    // Removed render_when_idle property (now always renders first frame when idle).
     
-    // Offset property: moves drawing relative to Node2D position for YSort foot pivot
     ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "offset"), "set_offset", "get_offset");
     
-    // Signals
     ADD_SIGNAL(MethodInfo("animation_finished"));
     ADD_SIGNAL(MethodInfo("frame_changed", PropertyInfo(Variant::FLOAT, "frame")));
     ADD_SIGNAL(MethodInfo("animation_loaded", PropertyInfo(Variant::BOOL, "success")));
@@ -756,25 +750,39 @@ LottieAnimation::~LottieAnimation() {
 }
 
 void LottieAnimation::_initialize_thorvg() {
-    // Initialize ThorVG engine
     static bool thorvg_initialized = false;
     if (!thorvg_initialized) {
         unsigned int hw_threads = std::thread::hardware_concurrency();
-        // Use N-1 threads if possible, minimum 1
-        unsigned int threads = hw_threads > 1 ? (hw_threads - 1) : 1;
+        unsigned int threads = hw_threads;
+        
+        if (threads == 0) threads = 4;
+        
+        if (hw_threads >= 8) {
+            threads = hw_threads + 2;
+        }
+        
+        UtilityFunctions::print("Initializing ThorVG with ", threads, " threads (CPU cores: ", hw_threads, ")");
+        
         if (tvg::Initializer::init(threads) != tvg::Result::Success) {
             UtilityFunctions::printerr("Failed to initialize ThorVG");
             return;
         }
+        
+        UtilityFunctions::print("ThorVG initialized successfully! Active threads:", threads);
         thorvg_initialized = true;
     }
     
-    // Create canvas for software rendering (main-thread path)
-    canvas = tvg::SwCanvas::gen(engine_option == 1 ? tvg::EngineOption::SmartRender : tvg::EngineOption::Default);
+    tvg::EngineOption render_opt = tvg::EngineOption::SmartRender;
+    if (engine_option == 0) render_opt = tvg::EngineOption::Default;
+    
+    canvas = tvg::SwCanvas::gen(render_opt);
     if (!canvas) {
-        UtilityFunctions::printerr("Failed to create ThorVG canvas");
+        UtilityFunctions::printerr("Failed to create optimized ThorVG canvas");
         return;
     }
+    
+    UtilityFunctions::print("ThorVG canvas created with optimization: ", 
+        (render_opt == tvg::EngineOption::SmartRender ? "SmartRender (High Performance)" : "Default"));
     _allocate_buffer_and_target(render_size);
     // Only start worker when enabled (never on Web by default)
     _start_worker_if_needed();
@@ -783,7 +791,7 @@ void LottieAnimation::_initialize_thorvg() {
 void LottieAnimation::_cleanup_thorvg() {
     _stop_worker();
     if (picture && animation) {
-        canvas->remove();  // Remove all paints
+        canvas->remove();
     }
     
     if (canvas) {
@@ -807,12 +815,10 @@ bool LottieAnimation::_load_animation(const String& path) {
         return false;
     }
     
-    // Clear previous animation fully
     if (picture) {
-    canvas->remove();            // Remove paints list
+    canvas->remove();
         picture = nullptr;
         animation = nullptr;
-        // Also clear the CPU buffer and image to avoid visual residue until next render.
         if (buffer) memset(buffer, 0, (size_t)render_size.x * (size_t)render_size.y * sizeof(uint32_t));
         if (image.is_valid()) {
             pixel_bytes.fill(0);
@@ -821,8 +827,6 @@ bool LottieAnimation::_load_animation(const String& path) {
         }
     }
     
-    // Create animation and picture (main-thread copy for single-thread path)
-    // Create Animation (segment control by range; we'll parse marker ranges from JSON)
     animation = tvg::Animation::gen();
     picture = animation->picture();
     
@@ -999,7 +1003,6 @@ void LottieAnimation::_render_frame() {
     // Set animation frame
     animation->frame(current_frame);
 
-    // Update and draw (keep scene persistent for performance)
     canvas->update();
     canvas->draw(false);
     canvas->sync();
@@ -1019,7 +1022,6 @@ void LottieAnimation::_render_frame() {
             _fix_alpha_border_rgba(pixel_bytes.ptrw(), render_size.x, render_size.y);
         }
         image->set_data(render_size.x, render_size.y, false, Image::FORMAT_RGBA8, pixel_bytes);
-        // Rotate through a texture ring to avoid GPU stalls on update
         if (!texture_ring.empty()) {
             Ref<ImageTexture> &slot = texture_ring[texture_ring_index];
             if (slot.is_valid()) {
@@ -1759,12 +1761,17 @@ void LottieAnimation::_worker_apply_fit_transform() {
 }
 
 void LottieAnimation::_worker_loop() {
-    // Create worker canvas
-    w_canvas = tvg::SwCanvas::gen(engine_option == 1 ? tvg::EngineOption::SmartRender : tvg::EngineOption::Default);
+    tvg::EngineOption worker_opt = tvg::EngineOption::SmartRender;
+    if (engine_option == 0) worker_opt = tvg::EngineOption::Default;
+    
+    w_canvas = tvg::SwCanvas::gen(worker_opt);
     if (!w_canvas) {
-        UtilityFunctions::printerr("Worker: Failed to create ThorVG canvas");
+        UtilityFunctions::printerr("Worker: Failed to create optimized ThorVG canvas");
         return;
     }
+    
+    UtilityFunctions::print("Worker canvas created with optimization: ", 
+        (worker_opt == tvg::EngineOption::SmartRender ? "SmartRender" : "Default"));
     while (true) {
         {
             std::unique_lock<std::mutex> lk(job_mutex);
