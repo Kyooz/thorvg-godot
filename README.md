@@ -10,6 +10,7 @@ Note: this is an integration demo for personal use, so features may fail/be inco
 
 ## Features
 
+- **Hybrid CPU-GPU rendering**: ThorVG rasterizes vector data to RGBA8888 format in CPU memory, then converts to RGB texture for Godot's draw system
 - **Multi-threaded rendering**: Parallel processing using all available CPU cores
 - **SIMD optimizations**: AVX/SSE (x86/x64) or NEON (ARM) vectorization
 - **Smart rendering**: Automatic partial rendering optimizations
@@ -105,6 +106,18 @@ The build system configures ThorVG with the following optimizations:
 - **Partial rendering**: Smart rendering optimizations
 - **Lottie loader only**: Minimal build excluding unnecessary formats
 - **Release mode**: Maximum compiler optimizations
+
+### Rendering Pipeline
+
+The integration uses a hybrid rendering approach:
+
+1. **Vector Processing**: ThorVG parses Lottie JSON and builds internal vector representation
+2. **CPU Rasterization**: ThorVG software renderer rasterizes vectors to RGBA8888 pixel buffer using CPU
+3. **Format Conversion**: RGBA8888 data is converted to RGB format compatible with Godot's texture system
+4. **GPU Upload**: RGB texture data is uploaded to Godot's GPU canvas via `draw_texture()` calls
+5. **GPU Compositing**: Godot handles final compositing, blending, and display using GPU shaders
+
+This approach leverages ThorVG's optimized CPU vector processing while maintaining compatibility with Godot's rendering pipeline.
 
 ### Supported Platforms
 
