@@ -1,0 +1,63 @@
+# Godot 4+ - Arquivos gerados pelo editor
+demo/.godot/
+
+# Arquivos temporários de build do GDExtension
+*.obj
+*.o
+*.os
+*.exp
+*.lib
+*.pdb
+demo/addons/godot_lottie/bin/~*.TMP
+
+# Build artifacts gerais
+.sconsign.dblite
+.scons_env.json
+*.pyc
+*.pyo
+*.swp
+*~
+*.log
+
+# godot-cpp - arquivos gerados
+godot-cpp/bin/
+godot-cpp/gen/
+godot-cpp/.sconsign.dblite
+godot-cpp/__pycache__/
+
+# ThorVG - build artifacts
+thirdparty/thorvg/builddir/
+thirdparty/thorvg/build_wasm/
+thirdparty/thorvg/.sconsign.dblite
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+ENV/
+
+# Visual Studio / MSBuild
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.vcxproj.filters
+*.vcxproj.user
+msvc_capture.log
+
+# OS específico
+.DS_Store
+Thumbs.db
+desktop.ini
+*.lnk
+
+# IDEs
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# IMPORTANTE: NÃO ignorar as DLLs do addon (para distribuição)
+# As DLLs em demo/addons/godot_lottie/bin/ devem ser commitadas!
