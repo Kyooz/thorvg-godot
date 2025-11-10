@@ -20,10 +20,10 @@ demo/addons/godot_lottie/bin/~*.TMP
 *.log
 
 # godot-cpp - arquivos gerados
-godot-cpp/bin/
-godot-cpp/gen/
-godot-cpp/.sconsign.dblite
-godot-cpp/__pycache__/
+thirdparty/godot-cpp/bin/
+thirdparty/godot-cpp/gen/
+thirdparty/godot-cpp/.sconsign.dblite
+thirdparty/godot-cpp/__pycache__/
 
 # ThorVG - build artifacts
 thirdparty/thorvg/builddir/

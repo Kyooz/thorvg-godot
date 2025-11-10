@@ -8,7 +8,7 @@ Builds optimized Lottie animation extension for Godot Engine
 import os
 import sys
 
-env = SConscript("godot-cpp/SConstruct")
+env = SConscript("thirdparty/godot-cpp/SConstruct")
 
 # Source files
 env.Append(CPPPATH=["src/"])

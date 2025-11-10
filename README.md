@@ -141,8 +141,9 @@ thorvg-godot/
 ├── demo/                    # Example project with plugin
 │   └── addons/
 │       └── godot_lottie/    # ← Plugin folder to copy to your project
-├── thirdparty/thorvg/       # ThorVG submodule
-└── godot-cpp/               # Godot C++ bindings
+└── thirdparty/              # Third-party dependencies
+    ├── godot-cpp/           # Godot C++ bindings
+    └── thorvg/              # ThorVG vector graphics library
 ```
 
 ## Usage
