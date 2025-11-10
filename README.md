@@ -1,6 +1,6 @@
 # ThorVG-Godot
 
-High-performance Lottie animation rendering for Godot Engine using optimized ThorVG backend.
+High-performance Lottie animation rendering for Godot Engine 4.3+ using optimized ThorVG backend.
 
 ![ThorVG Godot Demo](thor-lottie.gif)
 
