@@ -23,10 +23,9 @@ Note: this is an integration demo for personal use, so features may fail/be inco
 **Want to test without building?** The `demo/` folder contains a ready-to-run Godot project:
 
 1. Open `demo/project.godot` in Godot Engine
-2. **Copy the plugin**: Copy `demo/addons/godot_lottie/` to your project's `addons/` folder
-3. **Enable the plugin**: Go to Project → Project Settings → Plugins and enable "Godot Lottie"
-4. Run immediately - no compilation required!
-5. Test multiple Lottie animations and performance demos
+2. **Enable the plugin**: Go to Project → Project Settings → Plugins and enable "Godot Lottie"
+3. Run immediately - no compilation required!
+4. Test multiple Lottie animations and performance demos
 
 ## Prerequisites
 
