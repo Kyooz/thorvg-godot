@@ -16,6 +16,15 @@ Note: this is an integration demo for personal use, so features may fail/be inco
 - **Lottie-focused**: Optimized build with only necessary loaders
 - **Cross-platform**: Windows, Linux, and macOS support
 
+## Quick Demo
+
+**Want to test without building?** The `demo/` folder contains a ready-to-run Godot project:
+
+1. Open `demo/project.godot` in Godot Engine
+2  Enable the plugin: Go to Project → Project Settings → Plugins and enable "Godot Lottie"
+3. Run immediately - no compilation required!
+4. Test multiple Lottie animations and performance demos
+
 ## Prerequisites
 
 - **Python 3.7+** with pip
@@ -25,7 +34,7 @@ Note: this is an integration demo for personal use, so features may fail/be inco
   - Linux: GCC 8+ or Clang 10+
   - macOS: Xcode Command Line Tools
 
-## Quick Start
+## Installation
 
 ### 1. Clone Repository
 
@@ -43,6 +52,8 @@ pip install meson ninja
 
 ### 3. Build ThorVG
 
+**Option A: Automated Build (Recommended)**
+
 **Windows:**
 ```cmd
 build_thorvg.bat
@@ -52,6 +63,23 @@ build_thorvg.bat
 ```bash
 ./build_thorvg.sh
 ```
+
+**Option B: Manual Build (ThorVG Standard Process)**
+
+If you prefer to build ThorVG manually with custom options:
+
+```bash
+cd thirdparty/thorvg
+meson setup builddir
+meson configure builddir -Dsimd=true -Dthreads=true -Dloaders=lottie
+meson compile -C builddir
+```
+
+Additional ThorVG build options:
+- `-Dengines=sw` — Software renderer only (default for this integration)
+- `-Dbindings=capi` — C API bindings (required)
+- `-Dstatic=true` — Static library build
+- `-Dtests=false` — Disable tests and examples
 
 ### 4. Build Godot Extension
 
@@ -103,10 +131,10 @@ thorvg-godot/
 
 ## Usage
 
-1. Copy the built extension to your Godot project's `addons/` folder
-2. Enable the plugin in Project Settings
-3. Add `LottieAnimation` nodes to your scene
-4. Set the `animation_path` property to your Lottie, json file
+1. **Copy the extension**: Copy the built extension to your Godot project's `addons/` folder
+2. **Enable the plugin**: Go to Project → Project Settings → Plugins and enable "Godot Lottie"
+3. **Add LottieAnimation node**: Add `LottieAnimation` nodes to your scene
+4. **Set animation path**: Set the `animation_path` property to your Lottie JSON file
 
 ## API Reference
 
