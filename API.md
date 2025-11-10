@@ -35,6 +35,29 @@ lottie.autoplay = true
 lottie.looping = true
 ```
 
+## Demo Scene
+
+Check out `demo/addons/godot_lottie/demo/controldemo.tscn` for a working example with UI controls:
+
+- **Play/Stop buttons** connected to `LottieAnimation` methods
+- **Runtime control** of animation playback
+- **Simple setup** showing basic integration
+
+```gdscript
+# UI buttons for animation control
+@onready var play: Button = $play
+@onready var stop: Button = $stop
+
+# Reference to the Lottie animation node  
+@onready var lottie: LottieAnimation = $LottieAnimation
+
+func _on_play_pressed() -> void:
+    lottie.play()
+
+func _on_stop_pressed() -> void:
+    lottie.stop()
+```
+
 ---
 
 *State Machine API coming soon*
