@@ -7,21 +7,36 @@ set -e  # Exit on any error
 
 echo "========================================"
 echo "Building optimized ThorVG library"
+echo "Platform: $(uname -s) $(uname -m)"
 echo "Target: Lottie animations only"
 echo "Optimizations: Multi-threading, SIMD, Partial rendering"
 echo "========================================"
 echo
 
 # Check for required build tools
+if ! command -v python3 &> /dev/null; then
+    echo "ERROR: Python 3 not found"
+    echo "Please install Python 3.7 or later"
+    exit 1
+fi
+
 if ! python3 -m meson --version &> /dev/null; then
     echo "ERROR: Meson build system not found"
     echo
-    echo "To install: pip3 install meson ninja"
+    echo "To install:"
+    echo "  pip3 install --user meson ninja"
+    echo
+    echo "Or use your package manager:"
+    echo "  Ubuntu/Debian: sudo apt install meson ninja-build"
+    echo "  macOS: brew install meson ninja"
     echo
     exit 1
 fi
 
-echo "Build tools verified: Python + Meson available"
+MESON_VERSION=$(python3 -m meson --version)
+echo "Build tools verified:"
+echo "  Python: $(python3 --version 2>&1)"
+echo "  Meson: $MESON_VERSION"
 echo
 
 # Navigate to ThorVG directory
@@ -42,6 +57,9 @@ else
     CORES=4  # Fallback
 fi
 
+echo "Detected $CORES CPU cores for parallel compilation"
+echo
+
 # Configure build with optimal settings for Lottie rendering
 echo "Configuring ThorVG build with optimizations..."
 python3 -m meson setup builddir \
@@ -56,28 +74,43 @@ python3 -m meson setup builddir \
     -Dloaders=lottie \
     -Dbindings=capi \
     -Dexamples=false \
-    -Dcpp_args="-DTHORVG_THREAD_SUPPORT" \
+    -Dtests=false \
     --backend=ninja \
     --wipe
 
+if [ $? -ne 0 ]; then
+    echo
+    echo "ERROR: Meson configuration failed"
+    exit 1
+fi
+
 # Build with all available CPU cores
+echo
 echo "Building ThorVG using $CORES parallel jobs..."
 python3 -m meson compile -C builddir -j $CORES
 
+if [ $? -ne 0 ]; then
+    echo
+    echo "ERROR: ThorVG build failed"
+    exit 1
+fi
+
 echo
 echo "========================================"
-echo "ThorVG build completed successfully"
+echo "ThorVG build completed successfully!"
 echo
 echo "Output location: thirdparty/thorvg/builddir/src/"
 echo "Library file: libthorvg.a (static library)"
 echo
 echo "Enabled optimizations:"
-echo "  - Multi-threading: Task scheduler with $CORES workers"
-echo "  - SIMD instructions: CPU vectorization enabled"
-echo "  - Partial rendering: Smart update optimizations"  
-echo "  - Lottie loader: JSON animation support only"
-echo "  - Release mode: Maximum compiler optimizations"
-echo "  - Static linking: No runtime DLL dependencies"
+echo "  ✓ Multi-threading: Task scheduler with $CORES workers"
+echo "  ✓ SIMD instructions: CPU vectorization enabled"
+echo "  ✓ Partial rendering: Smart update optimizations"  
+echo "  ✓ Lottie loader: JSON animation support only"
+echo "  ✓ Release mode: Maximum compiler optimizations (-O3)"
+echo "  ✓ Static linking: No runtime dependencies"
 echo "========================================"
 echo
-echo "Build script completed. Ready to build Godot extension."
+echo "Next step: Build Godot extension with SCons"
+echo "  python3 -m SCons platform=linux target=template_release  # Linux"
+echo "  python3 -m SCons platform=macos target=template_release  # macOS"
