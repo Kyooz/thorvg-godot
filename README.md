@@ -48,11 +48,18 @@ git submodule update --init --recursive
 
 ### 2. Install Build Dependencies
 
+**From the project root directory (`thorvg-godot/`):**
+
+**All platforms:**
 ```bash
 pip install meson ninja
 ```
 
+> **Note**: On Windows, Meson and Ninja will be automatically added to your PATH by the build script if not already installed.
+
 ### 3. Build ThorVG
+
+**From the project root directory (`thorvg-godot/`):**
 
 **Option A: Automated Build (Recommended)**
 
@@ -68,33 +75,52 @@ build_thorvg.bat
 
 **Option B: Manual Build (ThorVG Standard Process)**
 
-If you prefer to build ThorVG manually with custom options:
+If you prefer to build ThorVG manually with custom options.
 
+**From the project root directory (`thorvg-godot/`):**
+
+**Windows:**
 ```bash
 cd thirdparty/thorvg
-meson setup builddir
-meson configure builddir -Dsimd=true -Dthreads=true -Dloaders=lottie
-meson compile -C builddir
+python -m meson setup builddir -Dbuildtype=release -Dsimd=true -Dthreads=true -Dloaders=lottie -Dbindings=capi
+python -m meson compile -C builddir
+cd ../..
+```
+
+**Linux/macOS:**
+```bash
+cd thirdparty/thorvg
+python3 -m meson setup builddir -Dbuildtype=release -Ddefault_library=static -Dsimd=true -Dthreads=true -Dloaders=lottie -Dbindings=capi
+python3 -m meson compile -C builddir
+cd ../..
 ```
 
 Additional ThorVG build options:
 - `-Dengines=sw` — Software renderer only (default for this integration)
 - `-Dbindings=capi` — C API bindings (required)
-- `-Dstatic=true` — Static library build
+- `-Ddefault_library=static` — Static library build (Linux/macOS)
+- `-Ddefault_library=shared` — Shared library build (Windows default)
 - `-Dtests=false` — Disable tests and examples
 
 ### 4. Build Godot Extension
 
+**From the project root directory (`thorvg-godot/`):**
+
 ```bash
 # Windows
-scons platform=windows target=template_release
+python -m SCons platform=windows target=template_debug
+python -m SCons platform=windows target=template_release
 
 # Linux
-scons platform=linux target=template_release
+python -m SCons platform=linux target=template_debug
+python -m SCons platform=linux target=template_release
 
 # macOS
-scons platform=macos target=template_release
+python -m SCons platform=macos target=template_debug
+python -m SCons platform=macos target=template_release
 ```
+
+> **Note**: On Windows, the build automatically copies `thorvg-1.dll` to the addon's bin directory. Linux and macOS use static linking and don't require runtime libraries.
 
 ## Build Configuration
 
@@ -110,23 +136,23 @@ The build system configures ThorVG with the following optimizations:
 
 ### Rendering Pipeline
 
-The integration uses a hybrid rendering approach:
+The integration uses a hybrid CPU-GPU rendering approach:
 
 1. **Vector Processing**: ThorVG parses Lottie JSON and builds internal vector representation
-2. **CPU Rasterization**: ThorVG software renderer rasterizes vectors to RGBA8888 pixel buffer using CPU
-3. **Format Conversion**: RGBA8888 data is converted to RGB format compatible with Godot's texture system
-4. **GPU Upload**: RGB texture data is uploaded to Godot's GPU canvas via `draw_texture()` calls
+2. **CPU Rasterization**: ThorVG software renderer rasterizes vectors to ARGB pixel buffer using CPU with SIMD optimizations
+3. **Format Conversion**: ARGB data is converted to RGBA format via optimized SIMD routines (SSSE3/NEON)
+4. **GPU Upload**: RGBA texture data is uploaded to Godot's rendering system via `ImageTexture`
 5. **GPU Compositing**: Godot handles final compositing, blending, and display using GPU shaders
 
 This approach leverages ThorVG's optimized CPU vector processing while maintaining compatibility with Godot's rendering pipeline.
 
 ### Supported Platforms
 
-| Platform | Architecture | Compiler | Status |
-|----------|-------------|----------|---------|
-| Windows  | x86_64      | MSVC     | ✓ Tested |
-| Linux    | x86_64      | GCC/Clang| ? Supported(need test) |
-| macOS    | x86_64/ARM64| Clang    | ? Supported(need test) |
+| Platform | Architecture | ThorVG Library | Compiler | Status |
+|----------|-------------|----------------|----------|---------|
+| Windows  | x86_64      | thorvg-1.dll (shared) | MSVC | ✓ Tested |
+| Linux    | x86_64      | libthorvg.a (static) | GCC/Clang| ⚠ Needs testing |
+| macOS    | x86_64/ARM64| libthorvg.a (static) | Clang | ⚠ Needs testing |
 
 ## Project Structure
 
@@ -162,18 +188,28 @@ See: **[API.md](API.md)** for a complete and up-to-date reference.
 ## Performance Tips
 
 - Use appropriate `render_size` values (avoid excessive resolution)
-- Enable `SmartRender` engine option for better performance
+- Enable `use_worker_thread` for better performance on multi-core systems
 - Consider frame caching for frequently used animations
-- Use multi-threading when rendering multiple animations (compile web using no threads is recommended)
+- Adjust `engine_option` (0=Default, 1=SmartRender) based on your needs
+- On web builds, disable worker threads for better compatibility
 
 ## Troubleshooting
 
 ### Build Issues
 
-**Meson not found:**
+**Meson not found (Windows):**
+The build script will automatically install Meson if missing. If you encounter issues:
 ```bash
 pip install --user meson ninja
-# Add Python Scripts directory to PATH
+# Restart terminal to reload PATH
+```
+
+**Meson not found (Linux/macOS):**
+```bash
+pip3 install --user meson ninja
+# Or use system package manager:
+# Ubuntu/Debian: sudo apt install meson ninja-build
+# macOS: brew install meson ninja
 ```
 
 **Compiler not found:**

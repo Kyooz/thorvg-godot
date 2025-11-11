@@ -34,12 +34,12 @@ if os.path.exists(thorvg_lib_dir):
             ("libthorvg.a", lambda: env.Append(LINKFLAGS=[os.path.join(thorvg_lib_dir, "libthorvg.a")]))
         ],
         "linux": [
-            ("libthorvg.so", lambda: env.Append(LIBS=["thorvg"])),
-            ("libthorvg.a", lambda: env.Append(LIBS=["thorvg"]))
+            ("libthorvg.a", lambda: env.Append(LIBS=["thorvg"])),
+            ("libthorvg.so", lambda: env.Append(LIBS=["thorvg"]))
         ],
         "macos": [
-            ("libthorvg.dylib", lambda: env.Append(LIBS=["thorvg"])),
-            ("libthorvg.a", lambda: env.Append(LIBS=["thorvg"]))
+            ("libthorvg.a", lambda: env.Append(LIBS=["thorvg"])),
+            ("libthorvg.dylib", lambda: env.Append(LIBS=["thorvg"]))
         ]
     }
     
