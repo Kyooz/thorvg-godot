@@ -19,13 +19,6 @@ fit_box_size = Vector2i(212, 212)
 process_mode = 3
 position = Vector2(604, 296)
 
-[node name="LottieAnimation2" type="LottieAnimation" parent="." unique_id=1360352008]
-animation_path = "res://addons/godot_lottie/lotties/Godot funny.json"
-playing = true
-fit_box_size = Vector2i(212, 212)
-process_mode = 3
-position = Vector2(119, 561)
-
 [node name="Count" type="Label" parent="." unique_id=190845112]
 z_index = 4
 offset_left = 8.0
@@ -36,23 +29,6 @@ theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_fonts/font = SubResource("FontVariation_2pdvg")
 theme_override_font_sizes/font_size = 25
 text = "Lotties count: 1"
-
-[node name="LottieAnimation3" type="LottieAnimation" parent="." unique_id=701585030]
-animation_path = "res://addons/godot_lottie/lotties/Godot funny.json"
-playing = true
-fit_box_size = Vector2i(212, 212)
-process_mode = 3
-position = Vector2(1154, 561)
-
-[node name="LottieAnimation4" type="LottieAnimation" parent="." unique_id=1451775948]
-animation_path = "res://addons/godot_lottie/lotties/Untitled file.lottie"
-playing = true
-fit_box_size = Vector2i(215, 215)
-state/animation = "Main Scene"
-state/machine = ""
-state/state = ""
-process_mode = 3
-position = Vector2(535, 594)
 
 [node name="ThorvgLogo" type="Sprite2D" parent="." unique_id=331914551]
 position = Vector2(732, 595)
