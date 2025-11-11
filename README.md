@@ -95,12 +95,39 @@ python3 -m meson compile -C builddir
 cd ../..
 ```
 
-Additional ThorVG build options:
-- `-Dengines=sw` — Software renderer only (default for this integration)
-- `-Dbindings=capi` — C API bindings (required)
-- `-Ddefault_library=static` — Static library build (Linux/macOS)
+**Additional ThorVG build options:**
+
+The automated scripts already include optimal settings. For manual builds, you can customize with these flags:
+
+- `-Dengines=sw` — Software renderer only (already enabled)
+- `-Dbindings=capi` — C API bindings (required, already enabled)
+- `-Ddefault_library=static` — Static library build (Linux/macOS default)
 - `-Ddefault_library=shared` — Shared library build (Windows default)
 - `-Dtests=false` — Disable tests and examples
+- `-Dpartial=true` — Enable partial rendering optimizations (already enabled)
+- `-Doptimization=3` — Maximum optimization level (already enabled)
+
+**Example custom build:**
+
+For development/debugging, you can build with custom options:
+
+```bash
+cd thirdparty/thorvg
+
+# Step 1: Configure build with custom options
+python3 -m meson setup builddir \
+    -Dbuildtype=debugoptimized \
+    -Ddefault_library=static \
+    -Dsimd=true \
+    -Dthreads=true \
+    -Dloaders=lottie \
+    -Dbindings=capi
+
+# Step 2: Compile the library
+python3 -m meson compile -C builddir
+
+cd ../..
+```
 
 ### 4. Build Godot Extension
 
