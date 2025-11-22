@@ -1,4 +1,4 @@
-# Lottie on godot powered by ThorVG SW render
+# Lottie Godot powered by ThorVG SW render
 
 High-performance Lottie animation rendering for Godot Engine 4.3+ using optimized ThorVG backend.
 
