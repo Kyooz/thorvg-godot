@@ -1,4 +1,4 @@
-# unnoficial Lottie-godot plugin
+# unofficial Lottie-godot plugin
 
 High-performance Lottie animation rendering for Godot Engine 4.3+ using optimized ThorVG backend.
 
